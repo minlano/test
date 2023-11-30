@@ -1,0 +1,32 @@
+import redis.clients.jedis.Jedis;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+public class ImageCachingExample {
+    public static void main(String[] args) {
+        // Redis 서버에 연결
+        Jedis jedis = new Jedis("localhost", 6379);
+        try {
+            // 이미지를 바이트 배열로 읽어오기
+            byte[] imageBytes = readImageBytes("path/to/your/image.jpg");
+            // 이미지를 Redis에 저장
+            jedis.set("unique_image_key", imageBytes);
+            // Redis에서 이미지를 읽어오기
+            byte[] cachedImageBytes = jedis.get("unique_image_key");
+            // 여기서부터는 cachedImageBytes를 필요에 따라 처리할 수 있습니다.
+        } finally {
+            // Jedis 연결 닫기
+            jedis.close();
+        }
+    }
+    private static byte[] readImageBytes(String imagePath) {
+        try {
+            Path path = Paths.get(imagePath);
+            return Files.readAllBytes(path);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+}
